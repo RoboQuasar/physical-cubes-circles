@@ -13,9 +13,9 @@ function Box(x, y, w, h) {
 
   this.isOffScreen = () => {
     return (
-      this.physicalBody.position.y > app.renderer.view.height
-      || this.physicalBody.position.x > app.renderer.view.width
-      || this.physicalBody.position.x < 0
+      this.physicalBody.bounds.min.y > app.renderer.view.height
+      || this.physicalBody.bounds.min.x > app.renderer.view.width
+      || this.physicalBody.bounds.max.x < 0
     );
   }
 
