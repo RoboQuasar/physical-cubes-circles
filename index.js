@@ -4,7 +4,16 @@ if(!PIXI.utils.isWebGLSupported()){
 }
 
 // create variables 
-let engine, world, boxes = [], ground, circle;
+let engine,
+  world,
+  boxes = [],
+  boundaries = [],
+  circles = [],
+  ground,
+  CircleButton,
+  CircleButtonTextStyle,
+  CircleButtonText,
+  clickType = 'box';
 
 //------------------------PIXI
 PIXI.utils.sayHello(type)
@@ -19,15 +28,37 @@ let app = new PIXI.Application({
 );
 
 app.renderer.view.style.display = 'block';
-app.renderer.view.style.margin='140px auto 0';
-app.renderer.view.style.width='100%';
+app.renderer.view.style.margin='140px 40px 0';
+app.renderer.view.style.width='calc(100% - 80px)';
 app.renderer.view.style.height='auto';
 app.renderer.view.style.backgroundColor = '#c4f1f4';
 document.body.appendChild(app.view);
 
 let mouseposition = app.renderer.plugins.interaction.mouse.global;
+
 function handleMousePressed() {
-  boxes.push(new Box(mouseposition.x, mouseposition.y, 60, 60));
+  if (clickType == 'box') boxes.push(new Box(mouseposition.x, mouseposition.y, 60, 60));
+  if (clickType == 'circle') circles.push(new Circle(mouseposition.x, mouseposition.y, 30));
+}
+
+function handleCirclePressed() {
+  CircleButton.scale.set(1.2, 1.2);
+  if (clickType == 'circle') {
+    clickType = 'box';
+    CircleButtonTextStyle.fontSize = 20;
+    CircleButtonText.position.y = -15;
+    CircleButtonText.text = 'Круг!';
+  }
+  else if (clickType == 'box') {
+    clickType = 'circle';
+    CircleButtonTextStyle.fontSize = 12;
+    CircleButtonText.position.y = -10;
+    CircleButtonText.text = 'Квадрат!';
+  }
+}
+
+function handleCircleUnpressed() {
+  CircleButton.scale.set(1, 1);
 }
 
 setup();
@@ -36,7 +67,6 @@ function setup() {
   //-------------------------------Matter
   engine = Matter.Engine.create();
   world = engine.world;
-  // run the engine
   Matter.Engine.run(engine);
 
   // ------------------------------Background
@@ -48,46 +78,69 @@ function setup() {
   background.interactive = true;
   background.on('pointerdown', handleMousePressed);
 
-  // ------------------------------Ground
+  // ------------------------------Boundaries
+  boundaries.push(new Boundary(350, 200, 400, 50, { angle: 0.4}));
+  boundaries.push(new Boundary(650, 500, 400, 50, { angle: -0.4}));
+  boundaries.push(new Boundary(
+    app.renderer.view.width/2,
+    app.renderer.view.height - 25,
+    app.renderer.view.width,
+    50,
+  ));
 
-  ground = Matter.Bodies.rectangle(
-    app.renderer.view.width/2,     // x
-    app.renderer.view.height - 40, // y
-    app.renderer.view.width,       // width
-    80,                            // height
-    {isStatic: true}
-  );
-  Matter.World.add(engine.world, ground);
+  // ------------------------------CircleButton
+  CircleButton = new PIXI.Graphics();
+  CircleButton.beginFill(0x9966FF);
+  CircleButton.lineStyle(2, 0xFFDFFD, 1);
+  CircleButton.drawCircle(0, 0, 32);
+  CircleButton.endFill();
+  CircleButton.x = 950;
+  CircleButton.y = 40;
 
-  groundForm = new PIXI.Graphics();
-  groundForm.beginFill('black');
-  groundForm.drawRect(
-    app.renderer.view.width/2,     // x
-    ground.position.y,             // y
-    app.renderer.view.width,       // width
-    80,                            // height
-  );
-  groundForm.endFill();
-  groundForm.pivot.set(groundForm.width/2, groundForm.height/2);
-  app.stage.addChild(groundForm);
+  CircleButtonTextStyle = new PIXI.TextStyle({
+    fontFamily: "Arial",
+    fontSize: 20,
+    fill: "white",
+    stroke: '#ff3300',
+    strokeThickness: 2,
+  });
+  
+  CircleButtonText = new PIXI.Text("Круг!", CircleButtonTextStyle);
+  CircleButtonText.position.set(-25, -15);
+  CircleButton.addChild(CircleButtonText);
 
-  // ------------------------------Circle
-  circleForm = new PIXI.Graphics();
-  circleForm.beginFill(0x9966FF);
-  circleForm.drawCircle(0, 0, 32);
-  circleForm.endFill();
-  circleForm.x = 500;
-  circleForm.y = 200;
-  app.stage.addChild(circleForm);
+  app.stage.addChild(CircleButton);
+  CircleButton.interactive = true;
+  CircleButton.buttonMode = true;
+  CircleButton.on('pointerdown', handleCirclePressed);
+  CircleButton.on('pointerup', handleCircleUnpressed);
 
   app.ticker.add(() => play());
 }
 
-
 play = () => {
-  boxes.forEach(box => {
-    box.show();
+  boundaries.forEach(boundary => {
+    boundary.show();
   });
-  circleForm.x += 0.1;
+
+  boxes.forEach((box, i) => {
+    box.show();
+
+    if (box.isOffScreen()) {
+      box.remove();
+      boxes.splice(i, 1);
+    }
+  });
+
+  circles.forEach((circle, i) => {
+    circle.show();
+
+    if (circle.isOffScreen()) {
+      circle.remove();
+      circles.splice(i, 1);
+    }
+  });
+
+  /* circleForm.x += 0.1; */
 }
 
