@@ -41,24 +41,15 @@ function handleMousePressed() {
   if (clickType == 'circle') circles.push(new Circle(mouseposition.x, mouseposition.y, 30));
 }
 
-function handleCirclePressed() {
-  CircleButton.scale.set(1.2, 1.2);
-  if (clickType == 'circle') {
-    clickType = 'box';
-    CircleButtonTextStyle.fontSize = 20;
-    CircleButtonText.position.y = -15;
-    CircleButtonText.text = 'Круг!';
-  }
-  else if (clickType == 'box') {
-    clickType = 'circle';
-    CircleButtonTextStyle.fontSize = 12;
-    CircleButtonText.position.y = -10;
-    CircleButtonText.text = 'Квадрат!';
-  }
+function handleButtonPressed(e) {
+  e.target.scale.set(1.2, 1.2);
+
+  if (clickType == 'circle') clickType = 'box';
+  else if (clickType == 'box') clickType = 'circle';
 }
 
-function handleCircleUnpressed() {
-  CircleButton.scale.set(1, 1);
+function handleButtonUnpressed(e) {
+  e.target.scale.set(1, 1);
 }
 
 setup();
@@ -112,8 +103,36 @@ function setup() {
   app.stage.addChild(CircleButton);
   CircleButton.interactive = true;
   CircleButton.buttonMode = true;
-  CircleButton.on('pointerdown', handleCirclePressed);
-  CircleButton.on('pointerup', handleCircleUnpressed);
+  CircleButton.on('pointerdown', handleButtonPressed);
+  CircleButton.on('pointerup', handleButtonUnpressed);
+
+  // ------------------------------RectangleButton
+  RectangleButton = new PIXI.Graphics();
+  RectangleButton.beginFill(0x9966FF);
+  RectangleButton.lineStyle(2, 0xFFDFFD, 1);
+  RectangleButton.drawRect(0, 0, 62, 62);
+  RectangleButton.endFill();
+  RectangleButton.pivot.set(0.5, 0.5);
+  RectangleButton.x = 830;
+  RectangleButton.y = 10;
+
+  RectangleButtonTextStyle = new PIXI.TextStyle({
+    fontFamily: "Arial",
+    fontSize: 12,
+    fill: "white",
+    stroke: '#ff3300',
+    strokeThickness: 2,
+  });
+  
+  RectangleButtonText = new PIXI.Text("Квадрат!", RectangleButtonTextStyle);
+  RectangleButtonText.position.set(5, 20);
+  RectangleButton.addChild(RectangleButtonText);
+
+  app.stage.addChild(RectangleButton);
+  RectangleButton.interactive = true;
+  RectangleButton.buttonMode = true;
+  RectangleButton.on('pointerdown', handleButtonPressed);
+  RectangleButton.on('pointerup', handleButtonUnpressed);
 
   app.ticker.add(() => play());
 }
