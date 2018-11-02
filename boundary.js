@@ -1,8 +1,9 @@
-function Box(x, y, w, h) {
+function Boundary(x, y, w, h, extraOpt) {
   const options = {
-    friction: 0.03,
-    restitution: 0.5,
-    mass: 10,
+    friction: 0.02,
+    restitution: 0,
+    isStatic: true,
+    ...extraOpt,
   }
   this.physicalBody = Matter.Bodies.rectangle(x, y, w, h, options);
   this.vertices = this.physicalBody.vertices;
@@ -10,24 +11,12 @@ function Box(x, y, w, h) {
 
   Matter.World.add(engine.world, this.physicalBody);
   app.stage.addChild(this.form);
-
-  this.isOffScreen = () => {
-    return (
-      this.physicalBody.position.y > app.renderer.view.height
-      || this.physicalBody.position.x > app.renderer.view.width
-      || this.physicalBody.position.x < 0
-    );
-  }
-
-  this.remove = () => {
-    app.stage.removeChild(this.form);
-    Matter.World.remove(engine.world, this.physicalBody);
-  }
+  
 
   this.show = () => {
     this.form.clear();
-    this.form.lineStyle(1, 0xFF3300, 1, 0);
-    this.form.beginFill(0x66CCFF);
+    this.form.lineStyle(2, 0x956956, 1, 0);
+    this.form.beginFill(0x056056);
 
     this.form.drawPolygon([
       this.vertices[0].x, this.vertices[0].y,             //First point
@@ -36,7 +25,6 @@ function Box(x, y, w, h) {
       this.vertices[3].x, this.vertices[3].y,             //Fourth point
       this.vertices[0].x, this.vertices[0].y,             //First point
     ]);
-
     this.form.endFill();
   }
 };
