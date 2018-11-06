@@ -5,11 +5,12 @@ function Chain(x, y, n, r, length, fixed) {
   let constraints = [];
   app.stage.addChild(ChainContainer);
   const constraintLine = new PIXI.Graphics();
+  constraintLine.clear();
   ChainContainer.addChild(constraintLine);
 
   for (let i = x; i < x + length; i+= length/n) {
     circle = new ChainCircle(i, y, r, (fixed && i == x));
-    circles.push(circle);
+    chainCircles.push(circle);
 
     if (prevCircle) {
       const constraintOpt = {
@@ -35,16 +36,16 @@ function Chain(x, y, n, r, length, fixed) {
   this.show = () => {
     constraintLine.clear();
 
-    circles.forEach((circle, i) => {
-      circle.show();
-      
+    chainCircles.forEach((circle, i) => {
       if (i != 0) {
         constraintLine.lineStyle(3, 0xFF3300, 1, 0);
         constraintLine.beginFill(0x66CCFF);
         constraintLine.moveTo(circle.physicalBody.position.x, circle.physicalBody.position.y);
-        constraintLine.lineTo(circles[i-1].physicalBody.position.x, circles[i-1].physicalBody.position.y);
+        constraintLine.lineTo(chainCircles[i-1].physicalBody.position.x, chainCircles[i-1].physicalBody.position.y);
         constraintLine.endFill(); 
       }
+
+      circle.show();
     });
   }
 };

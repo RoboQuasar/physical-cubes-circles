@@ -14,6 +14,7 @@ let engine,
   boxes = [],
   boundaries = [],
   circles = [],
+  chainCircles = [],
   ground,
   chain = null,
   CircleButton,
@@ -209,6 +210,7 @@ function chainPlay() {
 function handleSwitchToRect() {
   if (mouseConstraintLine) mouseConstraintLine.clear();
 
+  chainCircles.forEach((circle) => circle.remove());
   circles.forEach((circle) => circle.remove());
   boxes.forEach((box) => box.remove());
   if (chain) chain.remove();
@@ -225,7 +227,9 @@ function handleSwitchToRect() {
 function handleSwitchToChain() {
   CircRectContainer.removeChildren();
 
+  chainCircles.forEach((circle) => circle.remove());
   circles.forEach((circle) => circle.remove());
+
   boxes.forEach((box) => box.remove());
   if (chain) chain.remove();
 
