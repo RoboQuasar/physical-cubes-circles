@@ -26,7 +26,22 @@ function Circle(x, y, r) {
     this.form.lineStyle(1, 0xFF3300, 1, 0);
     this.form.beginFill(0x66CCFF);
     this.form.drawCircle(this.physicalBody.position.x, this.physicalBody.position.y, this.physicalBody.circleRadius);
-
+    this.form.lineStyle(2, 0xFF0FF0, 1, 0);
+    this.form.moveTo(this.physicalBody.position.x, this.physicalBody.position.y);
+    this.form.lineTo(
+      this.physicalBody.vertices[0].x,
+      this.physicalBody.vertices[0].y,
+    );
+    this.form.moveTo(this.physicalBody.position.x, this.physicalBody.position.y);
+    this.form.lineTo(
+      this.physicalBody.vertices[8].x,
+      this.physicalBody.vertices[8].y,
+    );
+    this.form.moveTo(this.physicalBody.position.x, this.physicalBody.position.y);
+    this.form.lineTo(
+      this.physicalBody.vertices[16].x,
+      this.physicalBody.vertices[16].y,
+    );
     this.form.endFill();
   }
 };

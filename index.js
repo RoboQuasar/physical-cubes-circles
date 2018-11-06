@@ -41,11 +41,14 @@ function handleMousePressed() {
   if (clickType == 'circle') circles.push(new Circle(mouseposition.x, mouseposition.y, 30));
 }
 
-function handleButtonPressed(e) {
+function handleRectButtonPressed(e) {
   e.target.scale.set(1.2, 1.2);
+  clickType = 'box';
+}
 
-  if (clickType == 'circle') clickType = 'box';
-  else if (clickType == 'box') clickType = 'circle';
+function handleCircButtonPressed(e) {
+  e.target.scale.set(1.2, 1.2);
+  clickType = 'circle';
 }
 
 function handleButtonUnpressed(e) {
@@ -103,7 +106,7 @@ function setup() {
   app.stage.addChild(CircleButton);
   CircleButton.interactive = true;
   CircleButton.buttonMode = true;
-  CircleButton.on('pointerdown', handleButtonPressed);
+  CircleButton.on('pointerdown', handleCircButtonPressed);
   CircleButton.on('pointerup', handleButtonUnpressed);
 
   // ------------------------------RectangleButton
@@ -131,7 +134,7 @@ function setup() {
   app.stage.addChild(RectangleButton);
   RectangleButton.interactive = true;
   RectangleButton.buttonMode = true;
-  RectangleButton.on('pointerdown', handleButtonPressed);
+  RectangleButton.on('pointerdown', handleRectButtonPressed);
   RectangleButton.on('pointerup', handleButtonUnpressed);
 
   app.ticker.add(() => play());
