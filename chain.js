@@ -1,5 +1,11 @@
+const ChainContainer = new PIXI.Container();
+
 function Chain(x, y, n, r, length, fixed) {
   let prevCircle = null;
+  let constraints = [];
+  app.stage.addChild(ChainContainer);
+  const constraintLine = new PIXI.Graphics();
+  ChainContainer.addChild(constraintLine);
 
   for (let i = x; i < x + length; i+= length/n) {
     circle = new ChainCircle(i, y, r, (fixed && i == x));
@@ -14,13 +20,16 @@ function Chain(x, y, n, r, length, fixed) {
       };
   
       const constraint = Matter.Constraint.create(constraintOpt);
+      constraints.push(constraint);
       Matter.World.add(engine.world, constraint);
-
-      constraintLine =  new PIXI.Graphics();
-      app.stage.addChild(constraintLine);
     }
 
     prevCircle = circle;
+  };
+
+  this.remove = () => {
+    constraintLine.clear();
+    ChainContainer.removeChildren();
   }
 
   this.show = () => {

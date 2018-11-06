@@ -15,10 +15,12 @@ let engine,
   boundaries = [],
   circles = [],
   ground,
+  chain = null,
   CircleButton,
   CircleButtonTextStyle,
   CircleButtonText,
-  clickType = 'box';
+  clickType = 'box',
+  mouseConstraintLine = null;
 
 //------------------------PIXI
 PIXI.utils.sayHello(type)
@@ -205,10 +207,11 @@ function chainPlay() {
 }
 
 function handleSwitchToRect() {
-  mouseConstraintLine.clear();
+  if (mouseConstraintLine) mouseConstraintLine.clear();
 
   circles.forEach((circle) => circle.remove());
   boxes.forEach((box) => box.remove());
+  if (chain) chain.remove();
 
   Matter.World.remove(engine.world, mouseConstraint);
   app.stage.removeChild(mouseConstraintLine);
@@ -224,6 +227,7 @@ function handleSwitchToChain() {
 
   circles.forEach((circle) => circle.remove());
   boxes.forEach((box) => box.remove());
+  if (chain) chain.remove();
 
   chain = new Chain(360, 35, 6, 30, 240, true);
   Matter.World.add(engine.world, mouseConstraint);
