@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {  
-  document.getElementsByClassName('switch-to-rect')[0].addEventListener('click', handleSwitchToRect);
-  document.getElementsByClassName('switch-to-chain')[0].addEventListener('click', handleSwitchToChain);
+  document.getElementsByClassName('switch_to-rect')[0].addEventListener('click', handleSwitchToRect);
+  document.getElementsByClassName('switch_to-chain')[0].addEventListener('click', handleSwitchToChain);
 });
 
 let type = "WebGL"
@@ -11,6 +11,7 @@ if(!PIXI.utils.isWebGLSupported()){
 // create variables 
 let engine,
   world,
+  state,
   boxes = [],
   boundaries = [],
   circles = [],
@@ -21,7 +22,8 @@ let engine,
   CircleButtonTextStyle,
   CircleButtonText,
   clickType = 'box',
-  mouseConstraintLine = null;
+  mouseConstraintLine,
+  constraintLine;
 
 //------------------------PIXI
 PIXI.utils.sayHello(type)
@@ -71,18 +73,6 @@ function setup() {
   world = engine.world;
   Matter.Engine.run(engine);
 
-  CircRectContainer = new PIXI.Container();
-  app.stage.addChild(CircRectContainer);
-
-  // ------------------------------Background
-  background = new PIXI.Graphics();
-  background.beginFill('white', 0);
-  background.drawRect(0, 0, 1000, 700);
-  background.endFill();
-  CircRectContainer.addChild(background);
-  background.interactive = true;
-  background.on('pointerdown', handleMousePressed);
-
   // ------------------------------Boundaries
   boundaries.push(new Boundary(350, 200, 400, 50, { angle: 0.4}));
   boundaries.push(new Boundary(650, 500, 400, 50, { angle: -0.4}));
@@ -96,6 +86,24 @@ function setup() {
   boundaries.forEach(boundary => {
     boundary.show();
   });
+
+  RectAndCircSetup();
+}
+
+function RectAndCircSetup() {
+  state = RectAndCircPlay;
+
+  CircRectContainer = new PIXI.Container();
+  app.stage.addChild(CircRectContainer);
+
+  // ------------------------------Background
+  background = new PIXI.Graphics();
+  background.beginFill('white', 0);
+  background.drawRect(0, 0, 1000, 700);
+  background.endFill();
+  CircRectContainer.addChild(background);
+  background.interactive = true;
+  background.on('pointerdown', handleMousePressed);
 
   // ------------------------------CircleButton
   CircleButton = new PIXI.Graphics();
@@ -152,20 +160,51 @@ function setup() {
   RectangleButton.on('pointerdown', handleRectButtonPressed);
   RectangleButton.on('pointerup', handleButtonUnpressed);
 
-  //----------------------------------Chain
+  app.ticker.add(() => state());
+}
+
+ //----------------------------------Chain
+function ChainSetup() {
+  state = ChainPlay;
+
+  let prevCircle = null;
+  let constraints = [];
+  constraintLine = new PIXI.Graphics();
+  app.stage.addChild(constraintLine);
+  
+  for (let i = 360; i < 600; i += 40) {
+    circle = new ChainCircle(i, 35, 30, (i == 360));
+    chainCircles.push(circle);
+
+    if (prevCircle) {
+      const constraintOpt = {
+        bodyA: circle.physicalBody,
+        bodyB: prevCircle.physicalBody,
+        length: 70,
+        stiffness: 0.2,
+      };
+  
+      const constraint = Matter.Constraint.create(constraintOpt);
+      constraints.push(constraint);
+      Matter.World.add(engine.world, constraint);
+    }
+
+    prevCircle = circle;
+  };
 
   mouseConstraint = Matter.MouseConstraint.create(engine, {
     mouse: Matter.Mouse.create(app.view),
   });
 
-  mouseConstraintLine =  new PIXI.Graphics();
+  mouseConstraintLine = new PIXI.Graphics();
 
-  state = play;
+  Matter.World.add(engine.world, mouseConstraint);
+  app.stage.addChild(mouseConstraintLine);
 
   app.ticker.add(() => state());
 }
 
-function play() {
+function RectAndCircPlay() {
   boxes.forEach((box, i) => {
     box.show();
 
@@ -185,8 +224,22 @@ function play() {
   });
 }
 
-function chainPlay() {
-  chain.show();
+function ChainPlay() {
+  constraintLine.clear();
+  constraintLine.lineStyle(3, 0xFF3300, 1, 0);
+  constraintLine.beginFill(0x66CCFF);
+
+  chainCircles.forEach((chainCircle, i) => {
+    if(i != 0) {
+      constraintLine.moveTo(chainCircle.physicalBody.position.x, chainCircle.physicalBody.position.y);
+      constraintLine.lineTo(
+        chainCircles[i-1].physicalBody.position.x,
+        chainCircles[i-1].physicalBody.position.y,
+      );
+    }
+    chainCircle.show();
+  });
+  constraintLine.endFill(); 
 
   if (mouseConstraint.body) {
     mouseConstraintLine.clear();
@@ -208,9 +261,14 @@ function chainPlay() {
 }
 
 function handleSwitchToRect() {
-  if (mouseConstraintLine) mouseConstraintLine.clear();
+  app.renderer.clear('#c4f1f4');
+  Matter.World.clear(engine.world);
+  
+  RectAndCircSetup();
 
-  chainCircles.forEach((circle) => circle.remove());
+/*   if (mouseConstraintLine) mouseConstraintLine.clear();
+
+  chainCircles.forEach((chainCircle) => chainCircle.remove());
   circles.forEach((circle) => circle.remove());
   boxes.forEach((box) => box.remove());
   if (chain) chain.remove();
@@ -218,23 +276,23 @@ function handleSwitchToRect() {
   Matter.World.remove(engine.world, mouseConstraint);
   app.stage.removeChild(mouseConstraintLine);
 
-  CircRectContainer.addChild(background);
-  CircRectContainer.addChild(RectangleButton);
-  CircRectContainer.addChild(CircleButton);
-  state = play;
+ */
+
 }
 
+
+
 function handleSwitchToChain() {
+  app.renderer.clear('#c4f1f4');
+  Matter.World.clear(engine.world);
+
+  ChainSetup();
+
+  /* 
   CircRectContainer.removeChildren();
 
-  chainCircles.forEach((circle) => circle.remove());
+  chainCircles.forEach((chainCircle) => chainCircle.remove());
   circles.forEach((circle) => circle.remove());
-
   boxes.forEach((box) => box.remove());
-  if (chain) chain.remove();
-
-  chain = new Chain(360, 35, 6, 30, 240, true);
-  Matter.World.add(engine.world, mouseConstraint);
-  app.stage.addChild(mouseConstraintLine);
-  state = chainPlay;
+  if (chain) chain.remove(); */
 }
