@@ -1,0 +1,21 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.switch {
+  display: block;
+  margin: 30px 50px 0;
+  padding: 5px 10px;
+  background-color: #056056;
+  text-transform: uppercase;
+  color: white;
+  font-size: 15px;
+  border: solid rebeccapurple 2px;
+  cursor: pointer;
+}
+
+.switch_to-chain {
+  border-radius: 10px;
+}

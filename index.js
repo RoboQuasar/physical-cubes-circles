@@ -1,3 +1,8 @@
+document.addEventListener("DOMContentLoaded", () => {  
+  document.getElementsByClassName('switch_to-rect')[0].addEventListener('mousedown', handleSwitchToRect);
+  document.getElementsByClassName('switch_to-chain')[0].addEventListener('mousedown', handleSwitchToChain);
+});
+
 let type = "WebGL"
 if(!PIXI.utils.isWebGLSupported()){
   type = "canvas"
@@ -6,10 +11,13 @@ if(!PIXI.utils.isWebGLSupported()){
 // create variables 
 let engine,
   world,
+  state = RectAndCircPlay,
   boxes = [],
   boundaries = [],
   circles = [],
+  chainCircles = [],
   ground,
+  chain = null,
   CircleButton,
   CircleButtonTextStyle,
   CircleButtonText,
@@ -63,12 +71,18 @@ function setup() {
   world = engine.world;
   Matter.Engine.run(engine);
 
+  app.stage.removeChildren();
+  Matter.World.clear(engine.world);
+
+  CircRectContainer = new PIXI.Container();
+  app.stage.addChild(CircRectContainer);
+
   // ------------------------------Background
   background = new PIXI.Graphics();
   background.beginFill('white', 0);
   background.drawRect(0, 0, 1000, 700);
   background.endFill();
-  app.stage.addChild(background);
+  CircRectContainer.addChild(background);
   background.interactive = true;
   background.on('pointerdown', handleMousePressed);
 
@@ -81,6 +95,10 @@ function setup() {
     app.renderer.view.width,
     50,
   ));
+
+  boundaries.forEach(boundary => {
+    boundary.show();
+  });
 
   // ------------------------------CircleButton
   CircleButton = new PIXI.Graphics();
@@ -103,7 +121,7 @@ function setup() {
   CircleButtonText.position.set(-25, -15);
   CircleButton.addChild(CircleButtonText);
 
-  app.stage.addChild(CircleButton);
+  CircRectContainer.addChild(CircleButton);
   CircleButton.interactive = true;
   CircleButton.buttonMode = true;
   CircleButton.on('pointerdown', handleCircButtonPressed);
@@ -131,20 +149,17 @@ function setup() {
   RectangleButtonText.position.set(5, 20);
   RectangleButton.addChild(RectangleButtonText);
 
-  app.stage.addChild(RectangleButton);
+  CircRectContainer.addChild(RectangleButton);
   RectangleButton.interactive = true;
   RectangleButton.buttonMode = true;
   RectangleButton.on('pointerdown', handleRectButtonPressed);
   RectangleButton.on('pointerup', handleButtonUnpressed);
 
-  app.ticker.add(() => play());
+  app.ticker.add(() => state());
+  app.ticker.start();
 }
 
-play = () => {
-  boundaries.forEach(boundary => {
-    boundary.show();
-  });
-
+function RectAndCircPlay() {
   boxes.forEach((box, i) => {
     box.show();
 
@@ -162,7 +177,30 @@ play = () => {
       circles.splice(i, 1);
     }
   });
-
-  /* circleForm.x += 0.1; */
 }
 
+function ChainPlay() {
+  chain.show();
+}
+
+function handleSwitchToRect() {
+  if (chain) chain.remove();
+  CircRectContainer.visible = true;
+  boxes.forEach((box) => box.remove());
+  circles.forEach((circle) => circle.remove());
+  chainCircles.forEach((chainCircle) => chainCircle.remove());
+
+  state = RectAndCircPlay;
+}
+
+function handleSwitchToChain() {
+  if (chain) chain.remove();
+  CircRectContainer.visible = false;
+  boxes.forEach((box) => box.remove());
+  circles.forEach((circle) => circle.remove());
+  chainCircles.forEach((chainCircle) => chainCircle.remove());
+
+  chain = new Chain(360, 35, 6, 30, 240, true);
+
+  state = ChainPlay;
+}
