@@ -2,12 +2,12 @@ const ChainContainer = new PIXI.Container();
 
 function Chain(x, y, n, r, length, fixed) {
   let prevCircle = null;
-  let constraints = [];
+  this.constraints = [];
   const constraintLine = new PIXI.Graphics();
   app.stage.addChild(constraintLine);
   
   for (let i = x; i < x + length; i+= length/n) {
-    circle = new ChainCircle(i, y, r, (fixed && i == x));
+    circle = new ChainCircle(i, y, r, fixed && i == x);
     chainCircles.push(circle);
 
     if (prevCircle) {
@@ -19,42 +19,65 @@ function Chain(x, y, n, r, length, fixed) {
       };
   
       this.constraint = Matter.Constraint.create(constraintOpt);
-      constraints.push(this.constraint);
+      this.constraints.push(this.constraint);
       Matter.World.add(engine.world, this.constraint);
     }
 
     prevCircle = circle;
   };
 
-  this.remove = () => {
-    constraintLine.destroy();
-    ChainContainer.visible = false;
-    constraintLine.visible = false;
-    console.log(constraintLine.visible);
-    constraints.forEach((constraint) => {
-      Matter.World.remove(engine.world, constraint);
-    });
-  }
+  this.mouseConstraint = Matter.MouseConstraint.create(engine, {
+    mouse: Matter.Mouse.create(app.view),
+  });
 
-  console.log(constraintLine.visible);
-  
+  this.mouseConstraintLine = new PIXI.Graphics();
+
+  Matter.World.add(engine.world, this.mouseConstraint);
+  app.stage.addChild(this.mouseConstraintLine);
+
+  this.remove = () => {
+    Matter.World.remove(engine.world, this.mouseConstraint);
+    app.stage.removeChild(this.mouseConstraintLine);
+
+    this.constraints.forEach((eachConstraint, i) => {
+      Matter.World.remove(engine.world, eachConstraint);
+      this.constraints.splice(i,1);
+    });
+
+    app.stage.removeChild(constraintLine);
+  }
 
   this.show = () => {
     constraintLine.clear();
-    constraintLine.lineStyle(3, 0xFF3300, 1, 0);
-    constraintLine.beginFill(0x66CCFF);
 
-    chainCircles.forEach((circle, i) => {
-      if(i != 0) {
-        constraintLine.moveTo(circle.physicalBody.position.x, circle.physicalBody.position.y);
-        constraintLine.lineTo(
-          chainCircles[i-1].physicalBody.position.x,
-          chainCircles[i-1].physicalBody.position.y,
-        );
-      }
-      circle.show();
+    this.constraints.forEach((constraint) => {
+      constraintLine.lineStyle(3, 0xFF3300, 1, 0);
+      constraintLine.beginFill(0x66CCFF);
+  
+      constraintLine.moveTo(constraint.bodyA.position.x, constraint.bodyA.position.y);
+      constraintLine.lineTo(constraint.bodyB.position.x, constraint.bodyB.position.y);
+      constraintLine.endFill();
     });
 
-    constraintLine.endFill(); 
+    chainCircles.forEach((circle) => circle.show());
+
+
+    if (this.mouseConstraint.body) {
+      this.mouseConstraintLine.clear();
+      this.mouseConstraintLine.lineStyle(3, 0x0F0F0, 1, 0);
+      this.mouseConstraintLine.beginFill(0x0F0F0);
+      this.mouseConstraintLine.moveTo(
+        this.mouseConstraint.body.position.x + this.mouseConstraint.constraint.pointB.x,
+        this.mouseConstraint.body.position.y + this.mouseConstraint.constraint.pointB.y,
+      );
+      this.mouseConstraintLine.lineTo(
+        this.mouseConstraint.mouse.position.x,
+        this.mouseConstraint.mouse.position.y,
+      );
+      this.mouseConstraintLine.endFill(); 
+
+    } else {
+      this.mouseConstraintLine.clear();
+    }
   }
 };
