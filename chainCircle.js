@@ -1,6 +1,7 @@
-function Circle(x, y, r) {
+function ChainCircle(x, y, r, fixed) {
   const options = {
-    restitution: 0.8,
+    restitution: 0.2,
+    isStatic: fixed,
   }
   this.physicalBody = Matter.Bodies.circle(x, y, r, options);
   this.form = new PIXI.Graphics();
@@ -16,7 +17,7 @@ function Circle(x, y, r) {
     );
   }
 
-  this.remove = () => {    
+  this.remove = () => {
     app.stage.removeChild(this.form);
     Matter.World.remove(engine.world, this.physicalBody);
   }
