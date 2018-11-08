@@ -7,8 +7,8 @@ function Chain(x, y, n, r, length, fixed) {
   app.stage.addChild(constraintLine);
   
   for (let i = x; i < x + length; i+= length/n) {
-    circle = new ChainCircle(i, y, r, fixed && i == x);
-    chainCircles.push(circle);
+    circle = new Circle(i, y, r, fixed && i == x);
+    circles.push(circle);
 
     if (prevCircle) {
       const constraintOpt = {
@@ -59,7 +59,7 @@ function Chain(x, y, n, r, length, fixed) {
       constraintLine.endFill();
     });
 
-    chainCircles.forEach((circle) => circle.show());
+    circles.forEach((circle) => circle.show());
 
 
     if (this.mouseConstraint.body) {

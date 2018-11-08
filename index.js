@@ -15,7 +15,6 @@ let engine,
   boxes = [],
   boundaries = [],
   circles = [],
-  chainCircles = [],
   ground,
   chain = null,
   CircleButton,
@@ -188,7 +187,6 @@ function handleSwitchToRect() {
   CircRectContainer.visible = true;
   boxes.forEach((box) => box.remove());
   circles.forEach((circle) => circle.remove());
-  chainCircles.forEach((chainCircle) => chainCircle.remove());
 
   state = RectAndCircPlay;
 }
@@ -198,7 +196,6 @@ function handleSwitchToChain() {
   CircRectContainer.visible = false;
   boxes.forEach((box) => box.remove());
   circles.forEach((circle) => circle.remove());
-  chainCircles.forEach((chainCircle) => chainCircle.remove());
 
   chain = new Chain(360, 35, 6, 30, 240, true);
 

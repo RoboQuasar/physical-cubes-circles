@@ -1,6 +1,7 @@
-function Circle(x, y, r) {
+function Circle(x, y, r, fixed) {
   const options = {
     restitution: 0.8,
+    isStatic: fixed,
   }
   this.physicalBody = Matter.Bodies.circle(x, y, r, options);
   this.form = new PIXI.Graphics();
