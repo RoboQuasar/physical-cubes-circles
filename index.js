@@ -38,14 +38,13 @@ app.renderer.view.style.display = 'block';
 app.renderer.view.style.margin='140px 40px 0';
 app.renderer.view.style.width='calc(100% - 80px)';
 app.renderer.view.style.height='auto';
+app.renderer.view.style.maxHeight='100vh';
 app.renderer.view.style.backgroundColor = '#c4f1f4';
 document.body.appendChild(app.view);
 
-let mouseposition = app.renderer.plugins.interaction.mouse.global;
-
-function handleMousePressed() {
-  if (clickType == 'box') boxes.push(new Box(mouseposition.x, mouseposition.y, 60, 60));
-  if (clickType == 'circle') circles.push(new Circle(mouseposition.x, mouseposition.y, 30));
+function handleMousePressed(e) {
+  if (clickType == 'box') boxes.push(new Box(e.data.global.x, e.data.global.y, 60, 60));
+  if (clickType == 'circle') circles.push(new Circle(e.data.global.x, e.data.global.y, 30));
 }
 
 function handleRectButtonPressed(e) {
