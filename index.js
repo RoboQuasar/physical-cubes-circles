@@ -30,15 +30,17 @@ let app = new PIXI.Application({
     width: 1000, 
     height: 700,                       
     antialias: true, 
-    transparent: true, 
+    transparent: true,
+    autoResize: true,
   }
 );
 
 app.renderer.view.style.display = 'block';
-app.renderer.view.style.margin='140px 40px 0';
-app.renderer.view.style.width='calc(100% - 80px)';
+app.renderer.view.style.margin='10% auto 0';
+app.renderer.view.style.width='100%';
 app.renderer.view.style.height='auto';
 app.renderer.view.style.maxHeight='100vh';
+app.renderer.view.style.maxWidth='1000px';
 app.renderer.view.style.backgroundColor = '#c4f1f4';
 document.body.appendChild(app.view);
 
